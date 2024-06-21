@@ -33,6 +33,24 @@ namespace MessageSystem.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        // GET: api/messages/{id}
+        [HttpGet("GetById/{id}")]
+        public async Task<ActionResult<Message>> GetMessageById(int id)
+        {
+            try
+            {
+                var message = await _messageService.GetMessageById(id);
+                if (message == null)
+                {
+                    return NotFound();
+                }
+                return Ok(message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
         // GET: api/messages
         [HttpGet]

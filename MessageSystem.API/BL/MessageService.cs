@@ -76,6 +76,11 @@ namespace MessageSystem.API.BL
             return _repository.GetAllMessagesAsync();
         }
 
+        public Task<Message> GetMessageById(int id)
+        {
+            return _repository.GetMessageById(id);
+        }
+
         public Task AddMessageAsync(Message message)
         {
             message.StartDate = message.StartDate.ToUniversalTime();

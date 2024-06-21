@@ -44,6 +44,7 @@ namespace MessageSystem.API.DAL
                 return message;
             });
         }
+       
 
         public async Task<List<Message>> GetAllMessagesAsync()
         {
@@ -87,6 +88,11 @@ namespace MessageSystem.API.DAL
                     SaveMessages();
                 }
             });
+        }
+
+        public async Task<Message> GetMessageById(int id)
+        {
+            return await Task.Run(() => _messages.FirstOrDefault(m => m.Id == id));
         }
     }
 }

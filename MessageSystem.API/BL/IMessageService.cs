@@ -9,5 +9,6 @@ namespace MessageSystem.API.BL
         Task AddMessageAsync(Message message);
         Task UpdateMessageAsync(Message message);
         Task DeleteMessageAsync(int id);
+        Task<Message> GetMessageById(int id);
     }
 }
