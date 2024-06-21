@@ -81,11 +81,48 @@ namespace MessageSystem.API.BL
             return _repository.GetMessageById(id);
         }
 
-        public Task AddMessageAsync(Message message)
+        public async Task AddMessageAsync(Message message)
         {
             message.StartDate = message.StartDate.ToUniversalTime();
             message.EndDate = message.EndDate?.ToUniversalTime();
-            return _repository.AddMessageAsync(message);
+
+            await ValidateTypeAMessageAsync(message);
+            await ValidateTypeBMessageAsync(message);
+
+            await _repository.AddMessageAsync(message);
+        }
+
+        private async Task ValidateTypeAMessageAsync(Message message)
+        {
+            if (message.EndDate == null) // Type (A) message
+            {
+                var existingMessage = await _repository.FirstOrDefaultAsync(m =>
+                    m.CountryCode == message.CountryCode &&
+                    m.EndDate == null && // Type (A)
+                    m.StartDate == message.StartDate);
+
+                if (existingMessage != null)
+                {
+                    throw new Exception("Multiple (A)-type messages starting at the same date and time are not allowed.");
+                }
+            }
+        }
+
+        private async Task ValidateTypeBMessageAsync(Message message)
+        {
+            if (message.EndDate != null) // Type (B) message
+            {
+                var existingMessage = await _repository.FirstOrDefaultAsync(m =>
+                    m.CountryCode == message.CountryCode &&
+                    m.EndDate != null && // Type (B)
+                    m.StartDate == message.StartDate &&
+                    m.EndDate == message.EndDate);
+
+                if (existingMessage != null)
+                {
+                    throw new Exception("Multiple (B)-type messages cannot be duplicated for a specific date and time in a specific country.");
+                }
+            }
         }
 
         public Task UpdateMessageAsync(Message message)

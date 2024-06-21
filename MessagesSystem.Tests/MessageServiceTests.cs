@@ -2,6 +2,7 @@
 using MessageSystem.API.DAL;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Linq.Expressions;
 
 namespace MessagesSystem.Tests
 {
@@ -138,6 +139,90 @@ namespace MessagesSystem.Tests
 
             // Assert
             Assert.Null(resultMessage);
+        }
+
+        [Fact]
+        public async Task AddMessageAsync_ValidTypeAMessage_NoExistingMessage_ShouldAddMessage()
+        {
+            // Arrange
+            var message = new Message
+            {
+                CountryCode = "US",
+                Greeting = "Hello",
+                StartDate = DateTime.UtcNow,
+                EndDate = null // Type A message
+            };
+
+            _mockRepository.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Message, bool>>>()))
+                           .ReturnsAsync((Message)null);
+
+            // Act
+            await _messageService.AddMessageAsync(message);
+
+            // Assert
+            _mockRepository.Verify(repo => repo.AddMessageAsync(It.IsAny<Message>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task AddMessageAsync_ValidTypeAMessage_ExistingMessage_ShouldThrowException()
+        {
+            // Arrange
+            var message = new Message
+            {
+                CountryCode = "US",
+                Greeting = "Hello",
+                StartDate = DateTime.UtcNow,
+                EndDate = null // Type A message
+            };
+
+            _mockRepository.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Message, bool>>>()))
+                           .ReturnsAsync(new Message());
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _messageService.AddMessageAsync(message));
+            Assert.Equal("Multiple (A)-type messages starting at the same date and time are not allowed.", exception.Message);
+        }
+
+        [Fact]
+        public async Task AddMessageAsync_ValidTypeBMessage_NoExistingMessage_ShouldAddMessage()
+        {
+            // Arrange
+            var message = new Message
+            {
+                CountryCode = "US",
+                Greeting = "Hello",
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddDays(1) // Type B message
+            };
+
+            _mockRepository.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Message, bool>>>()))
+                           .ReturnsAsync((Message)null);
+
+            // Act
+            await _messageService.AddMessageAsync(message);
+
+            // Assert
+            _mockRepository.Verify(repo => repo.AddMessageAsync(It.IsAny<Message>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task AddMessageAsync_ValidTypeBMessage_ExistingMessage_ShouldThrowException()
+        {
+            // Arrange
+            var message = new Message
+            {
+                CountryCode = "US",
+                Greeting = "Hello",
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddDays(1) // Type B message
+            };
+
+            _mockRepository.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Message, bool>>>()))
+                           .ReturnsAsync(new Message());
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<Exception>(() => _messageService.AddMessageAsync(message));
+            Assert.Equal("Multiple (B)-type messages cannot be duplicated for a specific date and time in a specific country.", exception.Message);
         }
     }
 }

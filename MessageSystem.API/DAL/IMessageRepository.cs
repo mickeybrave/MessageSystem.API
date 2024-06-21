@@ -1,4 +1,6 @@
-﻿namespace MessageSystem.API.DAL
+﻿using System.Linq.Expressions;
+
+namespace MessageSystem.API.DAL
 {
     public interface IMessageRepository
     {
@@ -8,5 +10,7 @@
         Task UpdateMessageAsync(Message message);
         Task DeleteMessageAsync(int id);
         Task<Message> GetMessageById(int id);
+        Task<Message> FirstOrDefaultAsync(Expression<Func<Message, bool>> predicate);
+
     }
 }
