@@ -56,11 +56,15 @@ namespace MessageSystem.API.BL
 
         public Task AddMessageAsync(Message message)
         {
+            message.StartDate = message.StartDate.ToUniversalTime();
+            message.EndDate = message.EndDate?.ToUniversalTime();
             return _repository.AddMessageAsync(message);
         }
 
         public Task UpdateMessageAsync(Message message)
         {
+            message.StartDate = message.StartDate.ToUniversalTime();
+            message.EndDate = message.EndDate?.ToUniversalTime();
             return _repository.UpdateMessageAsync(message);
         }
 
