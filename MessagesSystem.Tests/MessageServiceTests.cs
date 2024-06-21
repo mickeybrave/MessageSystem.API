@@ -1,5 +1,6 @@
 ﻿using MessageSystem.API.BL;
 using MessageSystem.API.DAL;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace MessagesSystem.Tests
@@ -8,11 +9,14 @@ namespace MessagesSystem.Tests
     {
         private readonly Mock<IMessageRepository> _mockRepository;
         private readonly MessageService _messageService;
+        private readonly Mock<ILogger<IMessageService>> _mockLogger;
+
 
         public MessageServiceTests()
         {
+            _mockLogger = new Mock<ILogger<IMessageService>>();
             _mockRepository = new Mock<IMessageRepository>();
-            _messageService = new MessageService(_mockRepository.Object);
+            _messageService = new MessageService(_mockRepository.Object, _mockLogger.Object);
         }
 
         [Fact]
