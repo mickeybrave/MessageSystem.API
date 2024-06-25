@@ -1,7 +1,5 @@
 ﻿using MessageSystem.API.Security.Service;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 
 namespace MessageSystem.API.Controllers
 {
@@ -17,9 +15,9 @@ namespace MessageSystem.API.Controllers
         }
 
         [HttpGet("")]
-        public IActionResult TestConnection()
+        public async Task<IActionResult> TestConnection()
         {
-            var users = _userService.GetAllUsers();
+            var users = await _userService.GetAllUsersAsync();
             return Ok(new { count = users.Count });
         }
     }

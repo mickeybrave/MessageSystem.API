@@ -1,19 +1,24 @@
 ﻿using AspNetCore.Identity.MongoDbCore.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDbGenericRepository.Attributes;
 
 namespace MessageSystem.API.Security.Model
 {
-    public class User
+    [CollectionName("Users")]
+    public class User : MongoIdentityUser<Guid>
     {
-        public string Id { get; set; }
+        [BsonElement("username")]
         public string Username { get; set; }
-        public string PasswordHash { get; set; }
-        public List<string> Roles { get; set; }
+        [BsonElement("email")]
+        public string Email { get; set; }
+        //public IList<string> Roles { get; set; } = new List<string>(); // Roles can be "User" or "Admin"
     }
 
-    [CollectionName("Users")]
-    public class ApplicationUser : MongoIdentityUser<Guid>
-    {
-        public ApplicationUser() : base() { }
-    }
+
+    //[CollectionName("Users")]
+    //public class ApplicationUser : MongoIdentityUser<Guid>
+    //{
+    //    public ApplicationUser() : base() { }
+    //}
 }

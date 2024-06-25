@@ -5,8 +5,8 @@ namespace MessageSystem.API.Security.Service
 {
     public interface IUserService
     {
-        Task<IdentityUser> GetUserByUsernameAsync(string username);
-        Task CreateUserAsync(IdentityUser user);
-        public List<IdentityUser> GetAllUsers();
+        Task<User> GetUserByUsernameAsync(string username);
+        Task CreateUserAsync(User user, string password);
+        Task<List<User>> GetAllUsersAsync();
     }
 }

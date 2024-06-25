@@ -1,5 +1,5 @@
-﻿using MessageSystem.API.Security.Model;
-using Microsoft.AspNetCore.Identity;
+﻿using MessageSystem.API.DAL.Auth;
+using MessageSystem.API.Security.Model;
 using MongoDB.Driver;
 
 namespace MessageSystem.API.Security.Service
@@ -7,26 +7,27 @@ namespace MessageSystem.API.Security.Service
 
     public class UserService : IUserService
     {
-        private readonly MongoDbContext _context;
+        private readonly IUserRepository _userRepository;
 
-        public UserService(MongoDbContext context)
+        public UserService(IUserRepository userRepository)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        public async Task<IdentityUser> GetUserByUsernameAsync(string username)
+        public async Task<User> GetUserByUsernameAsync(string username)
         {
-            return await _context.Users.Find(u => u.UserName == username).FirstOrDefaultAsync();
+            return await _userRepository.FindByUsernameAsync(username);
         }
 
-        public async Task CreateUserAsync(IdentityUser user)
+        public async Task CreateUserAsync(User user, string password)
         {
-            await _context.Users.InsertOneAsync(user);
+            await _userRepository.CreateUserAsync(user, password);
         }
 
-        public List<IdentityUser> GetAllUsers()
+        public async Task<List<User>> GetAllUsersAsync()
         {
-            return _context.Users.Find(_ => true).ToList();
+            return (await _userRepository.GetAllUsersAsync()).ToList();
         }
     }
+
 }

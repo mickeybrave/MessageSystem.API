@@ -9,6 +9,8 @@ using Microsoft.Extensions.Options;
 using MessageSystem.API.Security.Model;
 using MessageSystem.API.BL;
 using MessageSystem.API.DAL;
+using MessageSystem.API.BL.Auth;
+using MessageSystem.API.DAL.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,8 +55,8 @@ builder.Services.AddSingleton(sp =>
 });
 
 // Configure Identity
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
-    .AddMongoDbStores<ApplicationUser, ApplicationRole, Guid>(
+builder.Services.AddIdentity<User, Role>()
+    .AddMongoDbStores<User, Role, Guid>(
         mongoConnectionString,
         builder.Configuration["MongoDbConfigurationSettings:DatabaseName"]
     )
@@ -72,6 +74,23 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
     return new MongoClient(settings.ConnectionString);
 });
 
+// Configure Identity
+builder.Services.AddIdentityCore<User>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+})
+    .AddRoles<Role>()
+    .AddMongoDbStores<User, Role, Guid>(
+        mongoConnectionString,
+        builder.Configuration["MongoDbConfigurationSettings:DatabaseName"]
+    )
+    .AddSignInManager()
+    .AddDefaultTokenProviders();
+
 
 
 // Configure JWT authentication
@@ -81,6 +100,10 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddSingleton<IMessageRepository, MessageRepository>();
 builder.Services.AddSingleton<IMessageService, MessageService>();
+// Register AuthenticationService
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 
 //// Register IMongoCollection<IdentityUser>
 builder.Services.AddSingleton(sp =>

@@ -12,18 +12,16 @@ namespace MessageSystem.API.Security
     {
         private readonly IMongoDatabase _database;
 
-        //public MongoDbContext(IOptions<MongoDbConfigurationSettings> settings)
-        //{
-        //    var client = new MongoClient(settings.Value.ConnectionString);
-        //    _database = client.GetDatabase(settings.Value.DatabaseName);
-        //}
-
         public MongoDbContext(IOptions<MongoDbSettings> settings, IMongoClient client)
         {
             _database = client.GetDatabase(settings.Value.DatabaseName);
         }
-        public IMongoCollection<IdentityUser> Users => _database.GetCollection<IdentityUser>("Users");
         public IMongoCollection<IdentityRole> Roles => _database.GetCollection<IdentityRole>("Roles");
+
+        public IMongoCollection<User> Users => _database.GetCollection<User>("Users");
+        public IMongoCollection<IdentityUser> IdentityUsers => _database.GetCollection<IdentityUser>("IdentityUsers");
+
+
         //public IMongoCollection<Message> Messages => _database.GetCollection<Message>("Messages");
 
     }
